@@ -9,24 +9,42 @@ public class Door_Open : MonoBehaviour
     public GameObject DoorToOpen;
     public Transform Target;
     public float doorSpeed = 1;
+    public float delay = 0;
+    public float duration = 5f;
 
     Transform targetPosition;
     bool doorOpening = false;
+    bool doorFinishOpen = false;
     private void OnTriggerEnter(Collider col)
     {
         if (!doorOpening)
         {
-            doorOpening = true;
+            Invoke("ActivateDoor", delay);           
         }        
+    }
+    private void ActivateDoor()
+    {
+        doorOpening = true;
+        Invoke("StopDoor", duration);
+    }
+    private void StopDoor()
+    {
+        doorFinishOpen = true;
     }
     private void Update()
     {
         if (doorOpening)
-        {           
-            if (!(Vector3.Distance(transform.position, Target.position) < 0.001f))
+        {
+            /*
+            if (!(Vector3.Distance(DoorToOpen.transform.position, Target.position) < 0.1f))
             {
                 DoorToOpen.transform.Translate(Vector3.right * Time.deltaTime * doorSpeed);
             }
-        }
+            */
+            if (!doorFinishOpen)
+            {
+                DoorToOpen.transform.Translate(Vector3.right * Time.deltaTime * doorSpeed);
+            }
+        }      
     }
 }
