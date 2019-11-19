@@ -903,12 +903,12 @@ namespace GercStudio.USK.Scripts
                         : Mathf.Lerp(CurrentSpeed, MoveSpeed(), 15f * Time.deltaTime);
 
                 }
-                else
-                {
-                    if (isSprint)
-                        CurrentSpeed -= 10f * Time.deltaTime;
-                    else CurrentSpeed -= 6f * Time.deltaTime;
-                }
+                //else
+                //{
+                //    if (isSprint)
+                //        CurrentSpeed -= 10f * Time.deltaTime;
+                //    else CurrentSpeed -= 6f * Time.deltaTime;
+                //}
 
                 if (CurrentSpeed < 0)
                     CurrentSpeed = 0;
