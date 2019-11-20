@@ -166,7 +166,7 @@ namespace GercStudio.USK.Scripts
                         }
 
                         _rateofAttack = 0;
-                        if (Physics.Linecast(BulletSpawn[i].position, enemy_move.curTarget.transform.position + new Vector3(Random.Range(-ScatterOfBullets, ScatterOfBullets),
+                        if (Physics.Linecast(BulletSpawn[i].position, enemy_move.target.transform.position + new Vector3(Random.Range(-ScatterOfBullets, ScatterOfBullets),
                                                                           Random.Range(-ScatterOfBullets, ScatterOfBullets), 0), out Hit))
                         {
                             Quaternion HitRotation = Quaternion.FromToRotation(Vector3.up, Hit.normal);
@@ -342,7 +342,7 @@ namespace GercStudio.USK.Scripts
                     "(Enemy) <color=yellow>Missing component</color> [AttackAudio]. Add it, otherwise the sound of enemy shooting won't be played.",
                     gameObject);
 
-            GetComponent<EnemyMove>().curTarget.GetComponent<Controller>().MeleeAttack(MeleeDamage);
+            GetComponent<EnemyMove>().target.GetComponent<Controller>().MeleeAttack(MeleeDamage);
 
             _rateofAttack = 0;
         }

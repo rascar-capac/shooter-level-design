@@ -135,18 +135,18 @@ namespace GercStudio.USK.Scripts
                 defaultCrosshair.name = "Crosshair";
             }
 
-            var foundObjects = GameObject.FindGameObjectsWithTag("Spawn");
+            //var foundObjects = GameObject.FindGameObjectsWithTag("Spawn");
 
-            foreach (var obj in foundObjects)
-            {
-                SpawnAreas.Add(obj.transform);
-            }
+            //foreach (var obj in foundObjects)
+            //{
+            //    SpawnAreas.Add(obj.transform);
+            //}
 
-            if (SpawnAreas.Count == 0)
-                Debug.LogWarning(
-                    "(Game Control) <color=yellow>Not found</color> spawn points with tag [Spawn]. Add them, otherwise the enemies won't spawn");
+            //if (SpawnAreas.Count == 0)
+            //    Debug.LogWarning(
+            //        "(Game Control) <color=yellow>Not found</color> spawn points with tag [Spawn]. Add them, otherwise the enemies won't spawn");
 
-            StartCoroutine("SpawnEnemies");
+            //StartCoroutine("SpawnEnemies");
 
             if (!UsePause) return;
             

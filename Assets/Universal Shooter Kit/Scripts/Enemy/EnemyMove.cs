@@ -16,7 +16,7 @@ namespace GercStudio.USK.Scripts
     public class EnemyMove : MonoBehaviour
     {
         public bool isAngryZombie = false;
-        public List<Transform> WayPoints;
+        public List<Vector3> WayPoints;
         [Range(1, 100)] public float Stop_AttackDistance;
         [Range(1, 180)] public float FOVAngle;
         [Range(1, 100)] public float visualDetectionDistance;
@@ -34,8 +34,7 @@ namespace GercStudio.USK.Scripts
         public MoveOnWaypoints EnemyMovement;
 
         [HideInInspector] public List<GameObject> targets;
-        [HideInInspector] public Controller curTarget;
-
+        [HideInInspector] public Controller target;
         [HideInInspector] public bool CanAttack;
 
         private UnityEngine.AI.NavMeshAgent agent;
@@ -50,6 +49,9 @@ namespace GercStudio.USK.Scripts
 
         private bool HasIndex;
 
+        private Vector3 initialPosition;
+        private Quaternion initialRotation;
+        private bool isFixed;
         private List<Collider> overlappingColliders;
         private bool isHearingPlayer;
         private bool isSeeingPlayer;
@@ -77,8 +79,14 @@ namespace GercStudio.USK.Scripts
 
             agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
 
-            curTarget = GameObject.FindWithTag("Player").GetComponent<Controller>();
-
+            if (target == null)
+            {
+                target = GameObject.FindWithTag("Player").GetComponent<Controller>();
+            }
+            initialPosition = transform.position;
+            initialRotation = transform.rotation;
+            WayPoints.Insert(0, initialPosition);
+            isFixed = WayPoints.Count == 1;
             //StartCoroutine(StepSounds());
         }
 
@@ -117,7 +125,7 @@ namespace GercStudio.USK.Scripts
                 {
                     Gizmos.color = Color.blue;
                 }
-                Gizmos.DrawRay(transform.position, (curTarget.transform.position - transform.position).normalized * visualDetectionDistance);
+                Gizmos.DrawRay(transform.position, (target.transform.position - transform.position).normalized * visualDetectionDistance);
 
                 Gizmos.color = Color.black;
                 Gizmos.DrawRay(transform.position, transform.forward * visualDetectionDistance);
@@ -169,7 +177,7 @@ namespace GercStudio.USK.Scripts
             //                CanAttack = false;
             //            }
 
-            if(isAngryZombie)
+            if (isAngryZombie)
             {
                 ReachTarget();
             }
@@ -179,31 +187,31 @@ namespace GercStudio.USK.Scripts
                 overlappingColliders = new List<Collider>(Physics.OverlapSphere(transform.position, visualDetectionDistance));
                 foreach(Collider collider in overlappingColliders)
                 {
-                    if (collider.gameObject == curTarget.gameObject)
+                    Debug.Log(collider.gameObject + " " + target.gameObject);
+                    if (collider.gameObject == target.gameObject)
                     {
                         isPlayerNear = true;
                         break;
                     }
                 }
                 Vector3 detector = transform.Find("Detector").transform.position;
-                Vector3 detectable = curTarget.transform.Find("Detectable").transform.position;
+                Vector3 detectable = target.transform.Find("Detectable").transform.position;
                 Vector3 direction = (detectable - detector).normalized;
                 direction.y *= 0;
                 float angle = Vector3.Angle(transform.forward, direction);
                 Ray ray = new Ray(detector, detectable - detector);
-                isSeeingPlayer = isPlayerNear && angle <= FOVAngle / 2 && Physics.Raycast(ray, out RaycastHit hit, visualDetectionDistance) && hit.transform.gameObject == curTarget.gameObject;
+                isSeeingPlayer = isPlayerNear && angle <= FOVAngle / 2 && Physics.Raycast(ray, out RaycastHit hit, visualDetectionDistance) && hit.transform.gameObject == target.gameObject;
             
                 isHearingPlayer = false;
                 overlappingColliders = new List<Collider>(Physics.OverlapSphere(transform.position, soundDetectionDistance));
                 foreach (Collider collider in overlappingColliders)
                 {
-                    if (collider.gameObject == curTarget.gameObject && curTarget.isSprint)
+                    if (collider.gameObject == target.gameObject && target.isSprint)
                     {
                         isHearingPlayer = true;
                         break;
                     }
                 }
-
                 if (isSeeingPlayer || isHearingPlayer)
                 {
                     isDetectingPlayer = true;
@@ -236,7 +244,10 @@ namespace GercStudio.USK.Scripts
                 }
                 else
                 {
-                    WayPointsMoving();
+                    if(!isFixed)
+                    {
+                        WayPointsMoving();
+                    }
                     CanAttack = false;
                 }
             }
@@ -299,13 +310,22 @@ namespace GercStudio.USK.Scripts
         {
             if (!HasIndex)
             {
-                agent.stoppingDistance = 3;
+                agent.stoppingDistance = 1;
                 currentWP = GetNearestObject(WayPoints);
                 HasIndex = true;
             }
-
-            agent.SetDestination(WayPoints[currentWP].position);
-            if (Vector3.Distance(WayPoints[currentWP].position, transform.position) < 5)
+            
+            agent.SetDestination(WayPoints[currentWP]);
+            if(WayPoints.Count == 1)
+            {
+                if(agent.isStopped)
+                {
+                    agent.Warp(initialPosition);
+                    transform.rotation = initialRotation;
+                    isFixed = true;
+                }
+            }
+            else if (Vector3.Distance(WayPoints[currentWP], transform.position) < 3)
             {
                 PreviousPoint = currentWP;
                 currentWP++;
@@ -317,10 +337,10 @@ namespace GercStudio.USK.Scripts
         public void FindNearestPoint_Move()
         {
             if (!HasIndex)
-                agent.stoppingDistance = 3;
+                agent.stoppingDistance = 1;
 
-            agent.SetDestination(WayPoints[GetNearestObject(WayPoints)].position);
-            if (Vector3.Distance(WayPoints[GetNearestObject(WayPoints)].position, transform.position) < 5)
+            agent.SetDestination(WayPoints[GetNearestObject(WayPoints)]);
+            if (Vector3.Distance(WayPoints[GetNearestObject(WayPoints)], transform.position) < 5)
             {
                 PreviousPoint = currentWP;
                 currentWP = GetNearestObject(WayPoints);
@@ -331,13 +351,13 @@ namespace GercStudio.USK.Scripts
         {
             if (!HasIndex)
             {
-                agent.stoppingDistance = 3;
+                agent.stoppingDistance = 1;
                 currentWP = GetNearestObject(WayPoints);
                 HasIndex = true;
             }
 
-            agent.SetDestination(WayPoints[currentWP].position);
-            if (Vector3.Distance(WayPoints[currentWP].position, transform.position) < 5)
+            agent.SetDestination(WayPoints[currentWP]);
+            if (Vector3.Distance(WayPoints[currentWP], transform.position) < 5)
             {
                 PreviousPoint = currentWP;
                 currentWP = Random.Range(0, WayPoints.Count);
@@ -346,10 +366,10 @@ namespace GercStudio.USK.Scripts
 
         public void ReachTarget()
         {
-            agent.SetDestination(curTarget.transform.position);
+            agent.SetDestination(target.transform.position);
             agent.stoppingDistance = Stop_AttackDistance;
             HasIndex = false;
-            if (Vector3.Distance(transform.position, curTarget.transform.position) >= Stop_AttackDistance)
+            if (Vector3.Distance(transform.position, target.transform.position) >= Stop_AttackDistance)
             {
                 SetAnimationValues(false);
                 CanAttack = false;
@@ -360,6 +380,11 @@ namespace GercStudio.USK.Scripts
                 SetAnimationValues(true);
                 CanAttack = true;
 //              isStop = true;
+            }
+
+            if(WayPoints.Count == 1)
+            {
+                isFixed = false;
             }
         }
 
@@ -435,14 +460,14 @@ namespace GercStudio.USK.Scripts
             }
         }*/
 
-        int GetNearestObject(List<Transform> objects)
+        int GetNearestObject(List<Vector3> positions)
         {
             int bestPointIndex = 0;
             float closestDistanceSqr = Mathf.Infinity;
             Vector3 currentPosition = transform.position;
-            for (int i = 0; i < objects.Count; i++)
+            for (int i = 0; i < positions.Count; i++)
             {
-                Vector3 directionToObject = objects[i].position - currentPosition;
+                Vector3 directionToObject = positions[i] - currentPosition;
                 float dSqrToTarget = directionToObject.sqrMagnitude;
                 if (dSqrToTarget < closestDistanceSqr & i != currentWP & i != PreviousPoint)
                 {
