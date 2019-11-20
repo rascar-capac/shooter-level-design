@@ -152,7 +152,7 @@ namespace GercStudio.USK.Scripts
         private bool isObstacle;
         private bool CanMove;
         private bool wasRunningActiveBeforeJump;
-        private bool isSprint;
+        public bool isSprint;
         private bool isJump;
         public bool isCrouch;
         private bool deactivateCrouch;

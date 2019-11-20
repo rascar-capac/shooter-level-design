@@ -15,41 +15,60 @@ namespace GercStudio.USK.Scripts
 
     public class EnemyMove : MonoBehaviour
     {
+        public bool isAngryZombie = false;
+        public List<Transform> WayPoints;
         [Range(1, 100)] public float Stop_AttackDistance;
-        [Range(1, 100)] public float DistanceToSee;
+        [Range(1, 180)] public float FOVAngle;
+        [Range(1, 100)] public float visualDetectionDistance;
+        [Range(1, 100)] public float soundDetectionDistance;
+        [Range(0, 100)] public float detectionDelay;
+        [Range(0, 100)] public float maxDistanceFromInitialPosition;
 
         public enum MoveOnWaypoints
         {
             Random,
             Course,
-            FindNearestPoint
+            FindNearestPoint,
         };
 
         public MoveOnWaypoints EnemyMovement;
 
         [HideInInspector] public List<GameObject> targets;
-        [HideInInspector] public List<Transform> WayPoints;
-        [HideInInspector] public Transform curTarget;
+        [HideInInspector] public Controller curTarget;
 
         [HideInInspector] public bool CanAttack;
 
         private UnityEngine.AI.NavMeshAgent agent;
 
-        private Transform _target;
+        //private Transform target;
 
         private Animator anim;
 
         private int currentWP = 0;
         private int PreviousPoint = 0;
-        private float timer = 0;
+        //private float timer = 0;
 
         private bool HasIndex;
-//        private bool _audio = true;
-//        private bool isStop;
 
-        void Awake()
+        private List<Collider> overlappingColliders;
+        private bool isHearingPlayer;
+        private bool isSeeingPlayer;
+        private bool isDetectingPlayer;
+        private bool isAttackingPlayer;
+        private float detectionTimer;
+        //        private bool _audio = true;
+        //        private bool isStop;
+
+        //void Awake()
+        //{
+        //    FindPlayers();
+        //}
+
+        private void Awake()
         {
-            FindPlayers();
+            isDetectingPlayer = false;
+            isAttackingPlayer = false;
+            detectionTimer = detectionDelay;
         }
 
         void Start()
@@ -58,59 +77,167 @@ namespace GercStudio.USK.Scripts
 
             agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
 
-            var foundObjects = GameObject.FindGameObjectsWithTag("WayPoint");
-
-            for (int i = 0; i < foundObjects.Length; i++)
-            {
-                WayPoints.Add(foundObjects[i].transform);
-            }
+            curTarget = GameObject.FindWithTag("Player").GetComponent<Controller>();
 
             //StartCoroutine(StepSounds());
         }
 
+        private void OnDrawGizmos()
+        {
+            if(!isAngryZombie)
+            {
+                if(isHearingPlayer)
+                {
+                    Gizmos.color = Color.red;
+                }
+                else
+                {
+                    Gizmos.color = Color.yellow;
+                }
+                Gizmos.DrawWireSphere(transform.position, soundDetectionDistance);
+
+                if(isSeeingPlayer)
+                {
+                    Gizmos.color = Color.red;
+                }
+                else
+                {
+                    Gizmos.color = Color.green;
+                }
+                Vector3 FOVLeftLine = Quaternion.AngleAxis(FOVAngle / 2, transform.up) * transform.forward * visualDetectionDistance;
+                Gizmos.DrawRay(transform.position, FOVLeftLine);
+                Vector3 FOVRightLine = Quaternion.AngleAxis(- FOVAngle / 2, transform.up) * transform.forward * visualDetectionDistance;
+                Gizmos.DrawRay(transform.position, FOVRightLine);
+
+                if(isAttackingPlayer)
+                {
+                    Gizmos.color = Color.red;
+                }
+                else
+                {
+                    Gizmos.color = Color.blue;
+                }
+                Gizmos.DrawRay(transform.position, (curTarget.transform.position - transform.position).normalized * visualDetectionDistance);
+
+                Gizmos.color = Color.black;
+                Gizmos.DrawRay(transform.position, transform.forward * visualDetectionDistance);
+            }
+        }
+
         void Update()
         {
-            timer += Time.deltaTime;
+            //timer += Time.deltaTime;
 
-            if (timer > 2)
+            //if (timer > 2)
+            //{
+            //    FindPlayers();
+
+            //    if (targets.Count > 0)
+            //        curTarget = FindClosestPlayer().transform;
+            //    timer = 0;
+            //}
+
+            //            if (curTarget & targets.Count > 0)
+            //            {
+            //                if (Vector3.Distance(transform.position, curTarget.transform.position) < DistanceToSee)
+            //                {
+            //                    agent.SetDestination(curTarget.transform.position);
+            //                    agent.stoppingDistance = Stop_AttackDistance;
+            //                    HasIndex = false;
+            //                    if (Vector3.Distance(transform.position, curTarget.transform.position) >= Stop_AttackDistance)
+            //                    {
+            //                        SetAnimationValues(false);
+            //                        CanAttack = false;
+            ////                        isStop = false;
+            //                    }
+            //                    else
+            //                    {
+            //                        SetAnimationValues(true);
+            //                        CanAttack = true;
+            ////                        isStop = true;
+            //                    }
+            //                }
+            //                else
+            //                {
+            //                    WayPointsMoving();
+            //                    CanAttack = false;
+            //                }
+            //            }
+            //            else
+            //            {
+            //                WayPointsMoving();
+            //                CanAttack = false;
+            //            }
+
+            if(isAngryZombie)
             {
-                FindPlayers();
-                
-                if (targets.Count > 0)
-                    curTarget = FindClosestPlayer().transform;
-                timer = 0;
+                ReachTarget();
             }
-
-            if (curTarget & targets.Count > 0)
+            else
             {
-                if (Vector3.Distance(transform.position, curTarget.position) < DistanceToSee)
+                bool isPlayerNear = false;
+                overlappingColliders = new List<Collider>(Physics.OverlapSphere(transform.position, visualDetectionDistance));
+                foreach(Collider collider in overlappingColliders)
                 {
-                    agent.SetDestination(curTarget.position);
-                    agent.stoppingDistance = Stop_AttackDistance;
-                    HasIndex = false;
-                    if (Vector3.Distance(transform.position, curTarget.position) >= Stop_AttackDistance)
+                    if (collider.gameObject == curTarget.gameObject)
                     {
-                        SetAnimationValues(false);
-                        CanAttack = false;
-//                        isStop = false;
+                        isPlayerNear = true;
+                        break;
                     }
-                    else
+                }
+
+                Vector3 direction = (curTarget.transform.position - transform.position).normalized;
+                direction.y *= 0;
+                float angle = Vector3.Angle(transform.forward, direction);
+                Ray ray = new Ray(transform.position, curTarget.transform.position - transform.position);
+                isSeeingPlayer = isPlayerNear && angle <= FOVAngle / 2 && Physics.Raycast(ray, out RaycastHit hit, visualDetectionDistance) && hit.transform.gameObject == curTarget.gameObject;
+            
+                isHearingPlayer = false;
+                overlappingColliders = new List<Collider>(Physics.OverlapSphere(transform.position, soundDetectionDistance));
+                foreach (Collider collider in overlappingColliders)
+                {
+                    if (collider.gameObject == curTarget.gameObject && curTarget.isSprint)
                     {
-                        SetAnimationValues(true);
-                        CanAttack = true;
-//                        isStop = true;
+                        isHearingPlayer = true;
+                        break;
                     }
+                }
+
+                if (isSeeingPlayer || isHearingPlayer)
+                {
+                    isDetectingPlayer = true;
+                    isAttackingPlayer = true;
+                }
+                else
+                {
+                    if(isAttackingPlayer)
+                    {
+                        if(isDetectingPlayer)
+                        {
+                            isDetectingPlayer = false;
+                            detectionTimer = detectionDelay;
+                        }
+                        detectionTimer -= Time.deltaTime;
+                        if(detectionTimer <= 0)
+                        {
+                            isAttackingPlayer = false;
+                            //if (Vector3.Distance(transform.position, initialPosition) >= maxDistanceFromInitialPosition)
+                            //{
+                            //    isAttackingPlayer = false;
+                            //}
+                        }
+                    }
+                }
+
+                if(isAttackingPlayer)
+                {
+                    ReachTarget();
                 }
                 else
                 {
                     WayPointsMoving();
                     CanAttack = false;
                 }
-            }
-            else
-            {
-                WayPointsMoving();
-                CanAttack = false;
             }
         }
 
@@ -155,17 +282,17 @@ namespace GercStudio.USK.Scripts
                     gameObject);
         }
 
-        public void FindPlayers()
-        {
-            targets.Clear();
+        //public void FindPlayers()
+        //{
+        //    targets.Clear();
 
-            var foundPlayers = FindObjectsOfType<Controller>();
+        //    var foundPlayers = FindObjectsOfType<Controller>();
 
-            for (int i = 0; i < foundPlayers.Length; i++)
-            {
-                targets.Add(foundPlayers[i].gameObject);
-            }
-        }
+        //    for (int i = 0; i < foundPlayers.Length; i++)
+        //    {
+        //        targets.Add(foundPlayers[i].gameObject);
+        //    }
+        //}
 
         public void Course_Move()
         {
@@ -216,26 +343,45 @@ namespace GercStudio.USK.Scripts
             }
         }
 
-        public GameObject FindClosestPlayer()
+        public void ReachTarget()
         {
-            GameObject closest = null;
-            float distance = Mathf.Infinity;
-            Vector3 position = transform.position;
-
-            foreach (GameObject player in targets)
+            agent.SetDestination(curTarget.transform.position);
+            agent.stoppingDistance = Stop_AttackDistance;
+            HasIndex = false;
+            if (Vector3.Distance(transform.position, curTarget.transform.position) >= Stop_AttackDistance)
             {
-                Vector3 diff = player.transform.position - position;
-
-                float curDistacne = diff.sqrMagnitude;
-                if (curDistacne < distance)
-                {
-                    closest = player;
-                    distance = curDistacne;
-                }
+                SetAnimationValues(false);
+                CanAttack = false;
+//              isStop = false;
             }
-
-            return closest;
+            else
+            {
+                SetAnimationValues(true);
+                CanAttack = true;
+//              isStop = true;
+            }
         }
+
+        //public GameObject FindClosestPlayer()
+        //{
+        //    GameObject closest = null;
+        //    float distance = Mathf.Infinity;
+        //    Vector3 position = transform.position;
+
+        //    foreach (GameObject player in targets)
+        //    {
+        //        Vector3 diff = player.transform.position - position;
+
+        //        float curDistacne = diff.sqrMagnitude;
+        //        if (curDistacne < distance)
+        //        {
+        //            closest = player;
+        //            distance = curDistacne;
+        //        }
+        //    }
+
+        //    return closest;
+        //}
 
         /*IEnumerator StepSounds()
         {
