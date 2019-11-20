@@ -166,7 +166,7 @@ namespace GercStudio.USK.Scripts
                         }
 
                         _rateofAttack = 0;
-                        if (Physics.Linecast(BulletSpawn[i].position, enemy_move.curTarget.position + new Vector3(Random.Range(-ScatterOfBullets, ScatterOfBullets),
+                        if (Physics.Linecast(BulletSpawn[i].position, enemy_move.curTarget.transform.position + new Vector3(Random.Range(-ScatterOfBullets, ScatterOfBullets),
                                                                           Random.Range(-ScatterOfBullets, ScatterOfBullets), 0), out Hit))
                         {
                             Quaternion HitRotation = Quaternion.FromToRotation(Vector3.up, Hit.normal);

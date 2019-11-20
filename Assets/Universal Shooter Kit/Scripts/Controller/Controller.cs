@@ -152,7 +152,7 @@ namespace GercStudio.USK.Scripts
         private bool isObstacle;
         private bool CanMove;
         private bool wasRunningActiveBeforeJump;
-        private bool isSprint;
+        public bool isSprint;
         private bool isJump;
         public bool isCrouch;
         private bool deactivateCrouch;
@@ -1762,8 +1762,24 @@ namespace GercStudio.USK.Scripts
             }
         }
 
-        void OnTriggerEnter(Collider other)
+            void OnTriggerEnter(Collider other)
         {
+            if (isJump)
+            {
+                Debug.Log("collided with " + other.tag);
+                if (other.CompareTag("Ground"))
+                {
+                    CharacterController.center = new Vector3(CharacterController.center.x, defaultCharacterCenter, CharacterController.center.z);
+                    step1 = false;
+                    step2 = false;
+                    step3 = false;
+                    step4 = false;
+                    step5 = false;
+                    isCeiling = false;
+                    isJump = false;
+                    CameraSmoothWhenJumping = true;
+                }
+            }
             if (other.CompareTag("KnifeCollider"))
             {
                 print("eneter");
