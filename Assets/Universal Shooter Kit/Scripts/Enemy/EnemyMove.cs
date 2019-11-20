@@ -185,11 +185,12 @@ namespace GercStudio.USK.Scripts
                         break;
                     }
                 }
-
-                Vector3 direction = (curTarget.transform.position - transform.position).normalized;
+                Vector3 detector = transform.Find("Detector").transform.position;
+                Vector3 detectable = curTarget.transform.Find("Detectable").transform.position;
+                Vector3 direction = (detectable - detector).normalized;
                 direction.y *= 0;
                 float angle = Vector3.Angle(transform.forward, direction);
-                Ray ray = new Ray(transform.position, curTarget.transform.position - transform.position);
+                Ray ray = new Ray(detector, detectable - detector);
                 isSeeingPlayer = isPlayerNear && angle <= FOVAngle / 2 && Physics.Raycast(ray, out RaycastHit hit, visualDetectionDistance) && hit.transform.gameObject == curTarget.gameObject;
             
                 isHearingPlayer = false;
