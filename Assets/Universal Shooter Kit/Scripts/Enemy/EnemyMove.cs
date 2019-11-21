@@ -99,15 +99,18 @@ namespace GercStudio.USK.Scripts
                 Gizmos.DrawRay(transform.position, FOVRightLine);
                 //Gizmos.DrawWireSphere(transform.position, visualDetectionDistance);
 
-                if(isAttackingPlayer)
+                if(target)
                 {
-                    Gizmos.color = Color.red;
+                    if(isAttackingPlayer)
+                    {
+                        Gizmos.color = Color.red;
+                    }
+                    else
+                    {
+                        Gizmos.color = Color.gray;
+                    }
+                    Gizmos.DrawRay(transform.position, (target.transform.position - transform.position).normalized * visualDetectionDistance);
                 }
-                else
-                {
-                    Gizmos.color = Color.gray;
-                }
-                Gizmos.DrawRay(transform.position, (target.transform.position - transform.position).normalized * visualDetectionDistance);
 
                 Gizmos.color = Color.black;
                 Gizmos.DrawRay(transform.position, transform.forward * visualDetectionDistance);
@@ -161,8 +164,7 @@ namespace GercStudio.USK.Scripts
                 {
                     if(!isDetectingPlayer)
                     {
-                        audioSource.clip = detectionSound;
-                        audioSource.Play();
+                        audioSource.PlayOneShot(detectionSound);
                     }
                     isDetectingPlayer = true;
                     isAttackingPlayer = true;
@@ -180,8 +182,7 @@ namespace GercStudio.USK.Scripts
                         if(detectionTimer <= 0)
                         {
                             isAttackingPlayer = false;
-                            audioSource.clip = abortSound;
-                            audioSource.Play();
+                            audioSource.PlayOneShot(abortSound);
                         }
                     }
                 }
