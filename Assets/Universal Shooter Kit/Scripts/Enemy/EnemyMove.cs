@@ -96,7 +96,7 @@ namespace GercStudio.USK.Scripts
                 Gizmos.DrawRay(transform.position, FOVLeftLine);
                 Vector3 FOVRightLine = Quaternion.AngleAxis(- FOVAngle / 2, transform.up) * transform.forward * visualDetectionDistance;
                 Gizmos.DrawRay(transform.position, FOVRightLine);
-                Gizmos.DrawWireSphere(transform.position, visualDetectionDistance);
+                //Gizmos.DrawWireSphere(transform.position, visualDetectionDistance);
 
                 if(isAttackingPlayer)
                 {
