@@ -65,9 +65,6 @@ namespace GercStudio.USK.Scripts
         {
             anim = gameObject.GetComponent<Animator>();
             agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
-            initialPosition = new GameObject();
-            initialPosition.transform.SetPositionAndRotation(transform.position, transform.rotation);
-            WayPoints.Insert(0, initialPosition.transform);
         }
 
         private void OnDrawGizmos()
@@ -96,7 +93,7 @@ namespace GercStudio.USK.Scripts
                 Gizmos.DrawRay(transform.position, FOVLeftLine);
                 Vector3 FOVRightLine = Quaternion.AngleAxis(- FOVAngle / 2, transform.up) * transform.forward * visualDetectionDistance;
                 Gizmos.DrawRay(transform.position, FOVRightLine);
-                Gizmos.DrawWireSphere(transform.position, visualDetectionDistance);
+                //Gizmos.DrawWireSphere(transform.position, visualDetectionDistance);
 
                 if(isAttackingPlayer)
                 {
@@ -121,6 +118,12 @@ namespace GercStudio.USK.Scripts
             }
             else
             {
+                if(WayPoints.Count == 0)
+                {
+                    initialPosition = new GameObject();
+                    initialPosition.transform.SetPositionAndRotation(transform.position, transform.rotation);
+                    WayPoints.Insert(0, initialPosition.transform);
+                }
                 bool isPlayerNear = false;
                 overlappingColliders = new List<Collider>(Physics.OverlapSphere(transform.position, visualDetectionDistance));
                 foreach(Collider collider in overlappingColliders)
