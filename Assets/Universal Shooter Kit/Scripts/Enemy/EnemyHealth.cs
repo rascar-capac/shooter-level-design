@@ -15,8 +15,14 @@ namespace GercStudio.USK.Scripts
 
         public Transform Ragdoll;
         public Transform Enemy_health_text;
+        public Material damageMaterial;
+        public float damageColorDelay;
 
         [HideInInspector] public bool isRagdoll;
+
+        private float damageColorTimer;
+        public bool isDamageColored;
+        private Material defaultMaterial;
 
         void Awake()
         {
@@ -24,6 +30,9 @@ namespace GercStudio.USK.Scripts
                 Debug.LogWarning(
                     "(Enemy) Missing component [Enemy_health_text]. Add it, otherwise the health of enemy won't be displayed.",
                     gameObject);
+            damageColorTimer = damageColorDelay;
+            isDamageColored = false;
+            defaultMaterial = transform.Find("Body").transform.GetChild(0).GetComponent<SkinnedMeshRenderer>().material;
         }
 
         void Update()
@@ -62,6 +71,19 @@ namespace GercStudio.USK.Scripts
                 CreateRagdoll();
                 Destroy(gameObject, 0.3f);
             }
+
+            if(isDamageColored)
+            {
+                damageColorTimer -= Time.deltaTime;
+                if(damageColorTimer <= 0)
+                {
+                    for(int i = 0; i < transform.Find("Body").transform.childCount; i++)
+                    {
+                        ChangeMaterial(defaultMaterial);
+                    }
+                    damageColorTimer = damageColorDelay;
+                }
+            }
         }
 
         public void CreateRagdoll()
@@ -88,11 +110,14 @@ namespace GercStudio.USK.Scripts
         {
             if (Col.CompareTag("Fire"))
             {
+                Debug.Log("coucou");
                 if (Col.transform.root.GetComponent<Controller>())
                 {
                     var weaponController = Col.transform.root.GetComponent<Controller>().WeaponManager.weaponController;
                     if (weaponController.Attacks[weaponController.currentAttack].AttackType == WeaponsHelper.TypeOfAttack.Flame)
                     {
+                        ChangeMaterial(damageMaterial);
+                        isDamageColored = true;
                         Enemy_health -= weaponController.Attacks[weaponController.currentAttack].weapon_damage * Time.deltaTime;
                     }
                 }
@@ -108,6 +133,14 @@ namespace GercStudio.USK.Scripts
                 {
                     Enemy_health -= weaponController.Attacks[weaponController.currentAttack].weapon_damage;
                 }
+            }
+        }
+
+        public void ChangeMaterial(Material material)
+        {
+            for (int i = 0; i < transform.Find("Body").transform.childCount; i++)
+            {
+                transform.Find("Body").transform.GetChild(i).GetComponent<SkinnedMeshRenderer>().material = material;
             }
         }
     }

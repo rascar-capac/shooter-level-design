@@ -335,12 +335,12 @@ namespace GercStudio.USK.Scripts
 
         public void MeleeAttack()
         {
-            if (MeleeAttackAudio)
-                GetComponent<AudioSource>().PlayOneShot(MeleeAttackAudio);
-            else
-                Debug.LogWarning(
-                    "(Enemy) <color=yellow>Missing component</color> [AttackAudio]. Add it, otherwise the sound of enemy shooting won't be played.",
-                    gameObject);
+            //if (MeleeAttackAudio)
+            //    GetComponent<AudioSource>().PlayOneShot(MeleeAttackAudio);
+            //else
+            //    Debug.LogWarning(
+            //        "(Enemy) <color=yellow>Missing component</color> [AttackAudio]. Add it, otherwise the sound of enemy shooting won't be played.",
+            //        gameObject);
 
             GetComponent<EnemyMove>().target.GetComponent<Controller>().MeleeAttack(MeleeDamage);
 

@@ -789,10 +789,12 @@ namespace GercStudio.USK.Scripts
                                 Debug.LogWarning(
                                     "(Weapon) <color=yellow>Missing component</color> [Tracer]. Add it, otherwise bullet tracer won't be displayed.",
                                     gameObject);
-
                             if (Hit.collider.GetComponent<EnemyHealth>())
                             {
-                                Hit.collider.GetComponent<EnemyHealth>().Enemy_health -= Attacks[currentAttack].weapon_damage;
+                                EnemyHealth enemy = Hit.collider.GetComponent<EnemyHealth>();
+                                enemy.Enemy_health -= Attacks[currentAttack].weapon_damage;
+                                enemy.ChangeMaterial(enemy.damageMaterial);
+                                enemy.isDamageColored = true;
                             }
 
                             if (Hit.collider.GetComponent<Controller>())

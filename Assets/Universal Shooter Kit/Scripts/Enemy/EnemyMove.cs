@@ -17,6 +17,8 @@ namespace GercStudio.USK.Scripts
     {
         public bool isAngryZombie = false;
         public List<Transform> WayPoints = null;
+        public AudioClip detectionSound = null;
+        public AudioClip abortSound = null;
         [Range(1, 100)] public float Stop_AttackDistance;
         [Range(1, 180)] public float FOVAngle;
         [Range(1, 100)] public float visualDetectionDistance;
@@ -53,6 +55,7 @@ namespace GercStudio.USK.Scripts
         private bool isDetectingPlayer;
         private bool isAttackingPlayer;
         private float detectionTimer;
+        private AudioSource audioSource;
 
         private void Awake()
         {
@@ -65,6 +68,7 @@ namespace GercStudio.USK.Scripts
         {
             anim = gameObject.GetComponent<Animator>();
             agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
+            audioSource = GetComponent<AudioSource>();
         }
 
         private void OnDrawGizmos()
@@ -155,6 +159,11 @@ namespace GercStudio.USK.Scripts
 
                 if (isSeeingPlayer || isHearingPlayer)
                 {
+                    if(!isDetectingPlayer)
+                    {
+                        audioSource.clip = detectionSound;
+                        audioSource.Play();
+                    }
                     isDetectingPlayer = true;
                     isAttackingPlayer = true;
                 }
@@ -171,6 +180,8 @@ namespace GercStudio.USK.Scripts
                         if(detectionTimer <= 0)
                         {
                             isAttackingPlayer = false;
+                            audioSource.clip = abortSound;
+                            audioSource.Play();
                         }
                     }
                 }
