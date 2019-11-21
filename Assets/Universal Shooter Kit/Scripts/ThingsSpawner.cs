@@ -1,16 +1,17 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using GercStudio.USK.Scripts;
 
 public class ThingsSpawner : MonoBehaviour
 {
-    public GameObject[] ThingsToSpawn;
+    public EnemyMove[] EnemyToSpawn;
 
     private void Start()
     {
-        foreach (GameObject go in ThingsToSpawn)
+        foreach (EnemyMove enemy in EnemyToSpawn)
         {
-            go.SetActive(false);
+            enemy.gameObject.SetActive(false);
         }
     }
 
@@ -18,9 +19,10 @@ public class ThingsSpawner : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            foreach(GameObject go in ThingsToSpawn)
+            foreach(EnemyMove enemy in EnemyToSpawn)
             {
-                go.SetActive(true);
+                enemy.target = other.GetComponent<Controller>();
+                enemy.gameObject.SetActive(true);
             }
         }
 
