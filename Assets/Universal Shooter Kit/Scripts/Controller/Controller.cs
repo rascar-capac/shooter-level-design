@@ -28,6 +28,8 @@ namespace GercStudio.USK.Scripts
 
         public AudioSource leftAudioSource;
         public AudioSource rightAudioSource;
+        public AudioSource audioSource;
+        public AudioClip damageTakenSound;
 
         public Helper.AnimationClipOverrides ClipOverrides;
 
@@ -362,6 +364,8 @@ namespace GercStudio.USK.Scripts
 
         void Start()
         {
+
+            audioSource = GetComponent<AudioSource>();
             StartCoroutine("StepSounds");
             StartCoroutine("SetDefaultHeight");
 
@@ -1852,6 +1856,7 @@ namespace GercStudio.USK.Scripts
 
         public void MeleeAttack(int damage)
         {
+            audioSource.PlayOneShot(damageTakenSound);
             if (PlayerHealth - damage <= 0)
             {
                 KillerName = "Enemy";
