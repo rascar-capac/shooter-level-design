@@ -16,7 +16,7 @@ namespace GercStudio.USK.Scripts
         [Range(1, 100)] public int FireDamage;
         [Range(1, 100)] public int RocketDamage;
         [Range(1, 100)] public int BulletDamage;
-        [Range(1, 100)] public int MeleeDamage;
+        [Range(0, 100)] public int MeleeDamage;
 
         [Range(0, 0.3f)] public float ScatterOfBullets = 0.01f;
         public float RateOfShoot_Bullet = 0.5f;
