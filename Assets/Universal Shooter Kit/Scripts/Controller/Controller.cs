@@ -462,20 +462,20 @@ namespace GercStudio.USK.Scripts
                 Helper.CheckGamepadAxisButton(2, _gamepadButtonsAxes, hasAxisButtonPressed, "GetKeyDown", inputs.AxisButtonValues[2]))
                 Jump();
 
-            if (inputs.PressSprintButton)
-            {
-                if ((Input.GetKey(_gamepadCodes[0]) || Input.GetKey(_keyboardCodes[0]) ||
-                    Helper.CheckGamepadAxisButton(0, _gamepadButtonsAxes, hasAxisButtonPressed, "GetKey", inputs.AxisButtonValues[0])) &
-                    activeSprint)
-                    Sprint(true, "press");
-                else Sprint(false, "press");
-            }
-            else
-            {
-                if ((Input.GetKeyDown(_gamepadCodes[0]) || Input.GetKeyDown(_keyboardCodes[0]) ||
-                     Helper.CheckGamepadAxisButton(0, _gamepadButtonsAxes, hasAxisButtonPressed, "GetKeyDown", inputs.AxisButtonValues[0])) & activeSprint)
-                    Sprint(true, "click");
-            }
+            //if (inputs.PressSprintButton)
+            //{
+            //    if ((Input.GetKey(_gamepadCodes[0]) || Input.GetKey(_keyboardCodes[0]) ||
+            //        Helper.CheckGamepadAxisButton(0, _gamepadButtonsAxes, hasAxisButtonPressed, "GetKey", inputs.AxisButtonValues[0])) &
+            //        activeSprint)
+            //        Sprint(true, "press");
+            //    else Sprint(false, "press");
+            //}
+            //else
+            //{
+            //    if ((Input.GetKeyDown(_gamepadCodes[0]) || Input.GetKeyDown(_keyboardCodes[0]) ||
+            //         Helper.CheckGamepadAxisButton(0, _gamepadButtonsAxes, hasAxisButtonPressed, "GetKeyDown", inputs.AxisButtonValues[0])) & activeSprint)
+            //        Sprint(true, "click");
+            //}
 
             if (inputs.PressCrouchButton)
             {
@@ -683,7 +683,7 @@ namespace GercStudio.USK.Scripts
                 anim.SetFloat("Horizontal", 0, 0.3f, Time.deltaTime);
                 anim.SetFloat("Vertical", 0, 0.3f, Time.deltaTime);
 
-                Sprint(false, "press");
+                //Sprint(false, "press");
             }
 
             if (!hasMoveButtonPressed)

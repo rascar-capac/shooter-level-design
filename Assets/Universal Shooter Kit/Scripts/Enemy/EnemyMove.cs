@@ -146,7 +146,7 @@ namespace GercStudio.USK.Scripts
                 overlappingColliders = new List<Collider>(Physics.OverlapSphere(transform.position, soundDetectionDistance));
                 foreach (Collider collider in overlappingColliders)
                 {
-                    if (collider.gameObject == target.gameObject && target.isSprint)
+                    if (collider.gameObject == target.gameObject && !target.isCrouch)
                     {
                         isHearingPlayer = true;
                         break;
