@@ -1641,7 +1641,7 @@ namespace GercStudio.USK.Scripts
                     moveSpeed = ChoiceSpeed(NormBackwardSpeed, RunBackwardSpeed, CrouchBackwardSpeed);
                     break;
             }
-            return moveSpeed * Time.deltaTime * 100f;
+            return moveSpeed;
         }
 
         float ChoiceSpeed(float norm, float run, float crouch)
