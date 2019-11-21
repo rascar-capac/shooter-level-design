@@ -25,7 +25,7 @@ public class BlinkingLight : MonoBehaviour
         Debug.Log(t);
         if (!isShrinking)
         {
-            myLight.intensity = Mathf.Lerp(minimum, maximum, t += speed * Time.deltaTime);
+            myLight.range = Mathf.Lerp(minimum, maximum, t += speed * Time.deltaTime);
             if (t >= 1)
             {
                 isShrinking = true;
@@ -36,7 +36,7 @@ public class BlinkingLight : MonoBehaviour
         else
         {
             
-            myLight.intensity = Mathf.Lerp(maximum, minimum, t += speed * Time.deltaTime);
+            myLight.range = Mathf.Lerp(maximum, minimum, t += speed * Time.deltaTime);
             if(t >= 1)
             {
                 isShrinking = false;
