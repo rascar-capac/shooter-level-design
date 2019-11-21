@@ -110,7 +110,6 @@ namespace GercStudio.USK.Scripts
         {
             if (Col.CompareTag("Fire"))
             {
-                Debug.Log("coucou");
                 if (Col.transform.root.GetComponent<Controller>())
                 {
                     var weaponController = Col.transform.root.GetComponent<Controller>().WeaponManager.weaponController;
@@ -131,6 +130,8 @@ namespace GercStudio.USK.Scripts
                 var weaponController = Col.transform.root.GetComponent<Controller>().WeaponManager.weaponController;
                 if (weaponController.Attacks[weaponController.currentAttack].AttackType == WeaponsHelper.TypeOfAttack.Knife)
                 {
+                    ChangeMaterial(damageMaterial);
+                    isDamageColored = true;
                     Enemy_health -= weaponController.Attacks[weaponController.currentAttack].weapon_damage;
                 }
             }
