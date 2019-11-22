@@ -17,7 +17,7 @@ namespace GercStudio.USK.Scripts
     {
         public bool isAngryZombie = false;
         public List<Transform> WayPoints = null;
-        public AudioClip detectionSound = null;
+        public AudioClip attackingSound = null;
         public AudioClip abortSound = null;
         [Range(1, 100)] public float Stop_AttackDistance;
         [Range(1, 180)] public float FOVAngle;
@@ -162,9 +162,9 @@ namespace GercStudio.USK.Scripts
 
                 if (isSeeingPlayer || isHearingPlayer)
                 {
-                    if(!isDetectingPlayer)
+                    if(!isAttackingPlayer)
                     {
-                        audioSource.PlayOneShot(detectionSound);
+                        audioSource.PlayOneShot(attackingSound);
                     }
                     isDetectingPlayer = true;
                     isAttackingPlayer = true;
@@ -314,12 +314,16 @@ namespace GercStudio.USK.Scripts
             agent.SetDestination(target.transform.position);
             agent.stoppingDistance = Stop_AttackDistance;
             HasIndex = false;
+            Vector3 detector = transform.Find("Detector").transform.position;
+            Vector3 detectable = target.transform.Find("Detectable").transform.position;
+            Vector3 direction = (detectable - detector).normalized;
+            direction.y *= 0;
             if (Vector3.Distance(transform.position, target.transform.position) >= Stop_AttackDistance)
             {
                 SetAnimationValues(false);
                 CanAttack = false;
             }
-            else
+            else if (Vector3.Angle(transform.forward, direction) < 90)
             {
                 SetAnimationValues(true);
                 CanAttack = true;
