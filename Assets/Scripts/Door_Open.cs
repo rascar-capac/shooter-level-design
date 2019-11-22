@@ -15,7 +15,7 @@ public class Door_Open : MonoBehaviour
     public GameObject PressE_UI;
     public List<GameObject> ObjectsToActivate;
 
-    public AudioClip SoundToPlay;
+    public List<AudioClip> SoundsToPlay;
     public float Volume;
     AudioSource audio;
     public enum moveDirection
@@ -73,7 +73,10 @@ public class Door_Open : MonoBehaviour
     {
         doorOpening = true;
         Invoke("StopDoor", duration);
-        audio.PlayOneShot(SoundToPlay, Volume);
+        foreach(AudioClip sound in SoundsToPlay)
+        {
+            audio.PlayOneShot(sound, Volume);
+        }
         if (ObjectsToActivate.Count != 0)
         {
             for (int i = 0; i < ObjectsToActivate.Count; i++)

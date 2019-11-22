@@ -28,7 +28,7 @@ namespace GercStudio.USK.Scripts
 
         public AudioSource leftAudioSource;
         public AudioSource rightAudioSource;
-        public AudioSource audioSource;
+        private AudioSource audioSource;
         public AudioClip damageTakenSound;
 
         public Helper.AnimationClipOverrides ClipOverrides;
